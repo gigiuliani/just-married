@@ -31,5 +31,6 @@
                          :placeholder "Email Address"
                          :on-change #(dispatch [:set-email (-> % .-target .-value)])}]
 
-    [:button.rvsp__coming (tr :coming)]
-    [:button.rvsp__not_coming (tr :not-coming)]]])
+
+    [:button.rvsp__coming {:on-click #(dispatch [:send-notification true])} (tr :coming)]
+    [:button.rvsp__not_coming {:on-click #(dispatch [:send-notification false])} (tr :not-coming)]]])

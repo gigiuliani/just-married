@@ -1,5 +1,6 @@
 (ns just-married.home.handlers
   (:require [re-frame.core :as re-frame :refer [reg-sub dispatch reg-event-db]]
+            [cljs-http.client :as http]
             [just-married.home.db :as db]))
 
 (defn- getter
@@ -35,6 +36,14 @@
 (reg-event-db
  :set-email
  (setter :set-email))
+
+(reg-event-db
+ :send-notification
+ (js/console.log "sending notification")
+ (fn [db [_ value]]
+   (http/post "/notify"
+              {:json-params {:coming value}})
+   db))
 
 (reg-event-db
  :initialize-db

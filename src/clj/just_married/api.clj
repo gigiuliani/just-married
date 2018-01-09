@@ -6,15 +6,18 @@
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [hiccup.core :as html]
             [ring.middleware.defaults :as r-def]
+            [ring.middleware.resource :as resources]
+            [ring.middleware.json :refer [wrap-json-params wrap-json-response]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.util.response :as resp]
             [ring.adapter.jetty :as jetty]
-            [ring.middleware.resource :as resources]
             [compojure.core :refer [defroutes GET POST]]
             [environ.core :refer [env]]
             [just-married
              [settings :as settings]
              [pages :as pages]
-             [db :as db]]))
+             [db :as db]
+             [mail :refer [send-email]]]))
 
 (def pages
   {:guests pages/guest-list
@@ -73,7 +76,8 @@
 
 (defn notify
   [request]
-  ;; (println "request = " request)
+  (println "Notifying with request " request)
+  (send-email "test test")
   {:status 201
    :body ""})
 
@@ -92,7 +96,9 @@
                              (assoc-in r-def/site-defaults [:security :anti-forgery] false)))
 
       (wrap-authorization basic-auth-backend)
-      (wrap-authentication basic-auth-backend)))
+      (wrap-authentication basic-auth-backend)
+      wrap-keyword-params
+      wrap-json-params))
 
 (defn -main [& args]
   (jetty/run-jetty app {:port (get-port)}))
