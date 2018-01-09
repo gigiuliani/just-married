@@ -1,41 +1,51 @@
 (ns just-married.api-test
-  (:require [clojure.test :as t]
+  (:require [clojure.test :refer :all]
             [clojure.string :refer [includes?]]
             [ring.mock.request :as mock]
             [just-married.api :refer [app]]
             [just-married.utils :refer [db-reachable?]]
             [clojure.java.io :as jio]))
 
-(t/deftest homepage-test
+(deftest homepage-test
   (let [req (mock/request :get "/")
         resp (app req)]
 
-    (t/testing "Homepage returns 200"
-      (t/is (= 200 (-> resp :status))))
+    (testing "Homepage returns 200"
+      (is (= 200 (-> resp :status))))
 
-    (t/testing "Homepage contains some valid content"
-      (t/is (true? (includes?
+    (testing "Homepage contains some valid content"
+      (is (true? (includes?
                     (-> resp :body)
                     "Andrea"))))))
 
-(t/deftest authentication-helpers-test
-  (t/testing "Can happily authenticate"
+(deftest authentication-helpers-test
+  (testing "Can happily authenticate"
     (let [req (mock/request :get "/login" {:password "wrong"})
           resp (app req)]))
-  (t/testing "Not able to authenticate"
+  (testing "Not able to authenticate"
     (let [req (mock/request :get "/login" {:password "secure-password"})
           resp (app req)])))
 
+(deftest notify-test
+  (testing "Send a notification"
+    (let [req
+          (-> (mock/request :post "/notify")
+              (mock/json-body {:email "friend@mail.com"
+                               :name "friend"}))
+          resp (app req)]
+
+      (is (= (-> resp :status) 201)))))
+
 (when db-reachable?
-  (t/deftest guest-list-test
-    (t/testing "Without being authenticated we get 401"
+  (deftest guest-list-test
+    (testing "Without being authenticated we get 401"
       (let [req (mock/request :get "/guests")
             resp (app req)]
-        (t/is (= 401 (-> resp :status)))))
+        (is (= 401 (-> resp :status)))))
 
-    (t/testing "With authentication we get a 200"
+    (testing "With authentication we get a 200"
       (let [req (mock/request :get "/guests")
             authed-req (assoc req :identity "admin")
             resp (app authed-req)]
-        (t/is (= 200 (-> resp :status)))
-        (t/is (clojure.string/includes? (-> resp :body) "init_guests()"))))))
+        (is (= 200 (-> resp :status)))
+        (is (clojure.string/includes? (-> resp :body) "init_guests()"))))))

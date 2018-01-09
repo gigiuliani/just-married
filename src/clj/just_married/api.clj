@@ -71,8 +71,15 @@
   (-> (resp/redirect "/login")
       (assoc :session (dissoc session :identity))))
 
+(defn notify
+  [request]
+  ;; (println "request = " request)
+  {:status 201
+   :body ""})
+
 (defroutes app-routes
   (GET "/" [] (render-page :initial :en))
+  (POST "/notify" request (notify request))
   (GET "/enter" [] (render-page :initial :en))
   (GET "/main" request (render-page :home (detect-language request)))
   (GET "/guests" request (guest-list request)))
