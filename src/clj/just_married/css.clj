@@ -192,7 +192,7 @@
                        :font-size "5em"
                        :text-shadow "2px 2px 2px"
                        :font-family (:alex-brush FONT-FAMILIES)
-                       :color (:navy COLOR-PALLETTE)}]
+                       :color (:white COLOR-PALLETTE)}]
 
    [:.flag {:width "100px"}]
 
